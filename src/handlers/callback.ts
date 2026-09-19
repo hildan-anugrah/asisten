@@ -1,6 +1,6 @@
 import type { Env, TelegramCallbackQuery } from '../types'
 import { getEnv } from '../config'
-import { getFromKV, deleteFromKV } from '../lib/kv'
+import { getFromKV, deleteFromKV, savePageList } from '../lib/kv'
 import { createChildPage, readPageContent, deletePage, listChildPages } from '../services/notion'
 import {
   answerCallbackQuery,
@@ -175,13 +175,16 @@ export async function handleCallbackQuery(
         return
       }
 
+      const pageIds = pages.map((p) => p.id)
+      await savePageList(config.kv, query.message?.chat.id ?? 0, pageIds)
+
       const keyboard = buildPageListKeyboard(pages)
 
       if (query.message) {
         const listText =
           `*Daftar Halaman di Notion:*\n\n` +
           pages.map((p, i) => `${i + 1}. ${p.title}`).join('\n') +
-          `\n\n_Klik untuk melihat isi halaman._`
+          `\n\n_Klik untuk melihat isi, atau ketik /delete [nomor] untuk menghapus._`
 
         await editMessageText(
           config.telegramBotToken,

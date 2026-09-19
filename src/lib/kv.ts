@@ -2,6 +2,7 @@ import { KV_TTL_SECONDS } from '../config'
 import type { PendingFileInfo } from '../types'
 
 const FILE_TTL = 300 // 5 menit
+const PAGE_LIST_TTL = 3600 // 1 jam
 
 export function buildKVKey(chatId: number, messageId: number): string {
   return `msg_${chatId}_${messageId}`
@@ -63,5 +64,46 @@ export async function deleteFileInfo(
   chatId: number
 ): Promise<void> {
   const key = buildFileKey(chatId)
+  await kv.delete(key)
+}
+
+export function buildPageListKey(chatId: number): string {
+  return `pagelist_${chatId}`
+}
+
+export async function savePageList(
+  kv: KVNamespace,
+  chatId: number,
+  pageIds: string[]
+): Promise<void> {
+  const key = buildPageListKey(chatId)
+  await kv.put(key, JSON.stringify(pageIds), { expirationTtl: PAGE_LIST_TTL })
+}
+
+export async function getPageList(
+  kv: KVNamespace,
+  chatId: number
+): Promise<string[] | null> {
+  const key = buildPageListKey(chatId)
+  const data = await kv.get(key)
+  if (!data) return null
+  return JSON.parse(data) as string[]
+}
+
+export async function getPageIdByIndex(
+  kv: KVNamespace,
+  chatId: number,
+  index: number
+): Promise<string | null> {
+  const pageIds = await getPageList(kv, chatId)
+  if (!pageIds || index < 1 || index > pageIds.length) return null
+  return pageIds[index - 1]
+}
+
+export async function deletePageList(
+  kv: KVNamespace,
+  chatId: number
+): Promise<void> {
+  const key = buildPageListKey(chatId)
   await kv.delete(key)
 }

@@ -1,14 +1,16 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "asisten",
-  "main": "src/index.ts",
-  "compatibility_date": "2025-08-03",
-  "compatibility_flags": ["nodejs_compat"],
-  "kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "PLACEHOLDER_ID_BIKIN_DULU",
-      "preview_id": "PLACEHOLDER_PREVIEW_ID"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "asisten",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-08-03",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "6bf7b0c3a8164c16b4d567d01a536135",
+			"preview_id": "PLACEHOLDER_PREVIEW_ID"
+		}
+	]
 }
