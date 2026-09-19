@@ -12,14 +12,39 @@ Bot Telegram yang menganalisis dokumen menggunakan AI (Google Gemini), menyimpan
 
 ## ✨ Fitur
 
+### 🤖 AI
 | Perintah | Fungsi |
 |----------|--------|
-| `/start` | Tampilkan bantuan dan daftar perintah |
-| `/analisa [file_id]` | Analisis dokumen dari Google Drive |
-| `/upload` | Upload file teks langsung untuk dianalisis |
-| `/list` | Lihat semua hasil analisis di Notion |
-| `/read [page_id]` | Baca isi halaman Notion |
-| `/delete [page_id]` | Hapus halaman Notion |
+| `/ai [file_id]` | Analisis dokumen dari Google Drive dengan AI |
+| `/ai_upload` | Upload file teks langsung untuk dianalisis |
+
+### 📁 Google Drive
+| Perintah | Fungsi |
+|----------|--------|
+| `/ls` | List isi folder (+ ID untuk setiap file) |
+| `/cd [nama]` | Pindah ke folder |
+| `/cd ..` | Kembali ke folder sebelumnya |
+| `/pwd` | Lihat folder saat ini |
+| `/mkdir [nama]` | Buat folder baru |
+| `/cat [file_id]` | Baca isi file |
+| `/write [nama] \| [isi]` | Buat file teks baru |
+| `/upload [nama]` | Upload file ke Google Drive |
+| `/search [keyword]` | Cari file di Google Drive |
+| `/rm [file_id]` | Hapus file/folder |
+
+### 📋 Notion
+| Perintah | Fungsi |
+|----------|--------|
+| `/list` | Lihat semua halaman (dengan nomor urut) |
+| `/read [nomor]` | Baca isi halaman |
+| `/new [judul] \| [isi]` | Buat halaman baru |
+| `/edit [nomor] \| [isi]` | Tambah isi di bawah halaman |
+| `/delete [nomor]` | Hapus halaman |
+
+### ⚙️ Lainnya
+| Perintah | Fungsi |
+|----------|--------|
+| `/help [command]` | Bantuan detail per command |
 
 ---
 
@@ -331,18 +356,19 @@ asisten/
 │   ├── config.ts           # Config + constants
 │   ├── handlers/
 │   │   ├── webhook.ts      # Router semua command
-│   │   ├── command-analisa.ts
-│   │   ├── command-upload.ts
-│   │   ├── command-pages.ts
+│   │   ├── command-ai.ts   # AI commands (/ai, /ai_upload)
+│   │   ├── command-gdrive.ts   # Google Drive commands
+│   │   ├── command-pages.ts    # Notion commands
+│   │   ├── command-utils.ts    # Utility commands (/help)
 │   │   └── callback.ts
 │   ├── services/
 │   │   ├── telegram.ts     # Telegram Bot API
-│   │   ├── gdrive.ts       # Google Drive export
+│   │   ├── gdrive.ts       # Google Drive API
 │   │   ├── gemini.ts       # Gemini AI
-│   │   └── notion.ts       # Notion pages
+│   │   └── notion.ts       # Notion API
 │   ├── lib/
 │   │   ├── gcp-auth.ts     # JWT signing GCP
-│   │   └── kv.ts           # KV helpers
+│   │   └── kv.ts           # KV helpers + state management
 │   └── utils/
 │       └── logger.ts       # Logging
 ```
@@ -374,7 +400,8 @@ Perhatikan field `last_error_message`:
 | Bot tidak merespon sama sekali | Cek webhook status (lihat di atas), pastikan secrets sudah di-set |
 | Error 401 Unauthorized | Secrets belum di-set ke production, jalankan `wrangler secret put` |
 | Sudah fix secrets tapi masih tidak merespon | **Re-set webhook** ke URL yang sama untuk clear pending updates |
-| File tidak ditemukan | Pastikan Service Account punya akses ke file di Google Drive |
+| Google Drive: Permission denied | Pastikan Service Account punya akses (scope `drive`, bukan `drive.readonly`) |
+| Google Drive: File tidak ditemukan | Pastikan file/folder sudah di-share ke Service Account |
 | Gemini error | Cek API key valid dan quota masih ada |
 | Notion error | Pastikan halaman sudah di-share ke Integration |
 | Deploy berhasil tapi bot mati | Cek apakah semua `wrangler secret put` sudah dijalankan |

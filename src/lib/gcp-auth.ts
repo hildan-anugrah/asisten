@@ -11,7 +11,7 @@ export async function getGCPAccessToken(serviceAccountJson: string): Promise<str
     expiredAfter: 3600,
     alg: 'RS256',
     payloadAdditions: {
-      scope: 'https://www.googleapis.com/auth/drive.readonly',
+      scope: 'https://www.googleapis.com/auth/drive',
     },
   })
 

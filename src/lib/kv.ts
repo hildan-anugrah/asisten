@@ -3,6 +3,12 @@ import type { PendingFileInfo } from '../types'
 
 const FILE_TTL = 300 // 5 menit
 const PAGE_LIST_TTL = 3600 // 1 jam
+const GDRIVE_STATE_TTL = 86400 // 24 jam
+
+export interface GDriveState {
+  currentFolderId: string | null
+  currentFolderName: string
+}
 
 export function buildKVKey(chatId: number, messageId: number): string {
   return `msg_${chatId}_${messageId}`
@@ -105,5 +111,38 @@ export async function deletePageList(
   chatId: number
 ): Promise<void> {
   const key = buildPageListKey(chatId)
+  await kv.delete(key)
+}
+
+export function buildGDriveStateKey(chatId: number): string {
+  return `gdrive_state_${chatId}`
+}
+
+export async function saveGDriveState(
+  kv: KVNamespace,
+  chatId: number,
+  state: GDriveState
+): Promise<void> {
+  const key = buildGDriveStateKey(chatId)
+  await kv.put(key, JSON.stringify(state), { expirationTtl: GDRIVE_STATE_TTL })
+}
+
+export async function getGDriveState(
+  kv: KVNamespace,
+  chatId: number
+): Promise<GDriveState> {
+  const key = buildGDriveStateKey(chatId)
+  const data = await kv.get(key)
+  if (!data) {
+    return { currentFolderId: null, currentFolderName: 'Root' }
+  }
+  return JSON.parse(data) as GDriveState
+}
+
+export async function deleteGDriveState(
+  kv: KVNamespace,
+  chatId: number
+): Promise<void> {
+  const key = buildGDriveStateKey(chatId)
   await kv.delete(key)
 }

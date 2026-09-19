@@ -205,3 +205,38 @@ export async function deletePage(
 
   return true
 }
+
+export async function appendPageContent(
+  token: string,
+  pageId: string,
+  content: string
+): Promise<boolean> {
+  logStep('NOTION', `Menambah isi ke page: ${pageId}`)
+  const notion = getClient(token)
+
+  const paragraphs = content.split('\n').filter((line) => line.trim().length > 0)
+
+  const children = paragraphs.map((paragraph) => ({
+    type: 'paragraph' as const,
+    paragraph: {
+      rich_text: [{ type: 'text' as const, text: { content: paragraph } }],
+    },
+  }))
+
+  if (children.length === 0) {
+    children.push({
+      type: 'paragraph' as const,
+      paragraph: {
+        rich_text: [{ type: 'text' as const, text: { content: content } }],
+      },
+    })
+  }
+
+  await notion.blocks.children.append({
+    block_id: pageId,
+    children,
+  })
+
+  logSuccess('NOTION', `Isi ditambahkan ke page: ${pageId}`)
+  return true
+}
